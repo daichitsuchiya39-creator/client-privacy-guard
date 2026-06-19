@@ -1,0 +1,30 @@
+{
+  "name": "client-default-ppi-policy",
+  "regulation": "APPI_Japan",
+  "description": "日本の個人情報保護法を念頭に置いた既定マスキングポリシーのテンプレート。クライアント案件ごとにこのファイルを複製・編集して使う。",
+  "default_action": "review",
+  "k": 2,
+  "quasi_identifiers": ["年齢", "性別", "都道府県"],
+  "columns": {
+    "氏名": { "method": "redact", "token": "[氏名]" },
+    "顧客ID": { "method": "hash" },
+    "メールアドレス": { "method": "hash" },
+    "電話番号": { "method": "partial", "keep_head": 3, "keep_tail": 0 },
+    "マイナンバー": { "method": "drop" },
+    "住所": { "method": "partial", "keep_head": 3, "keep_tail": 0 },
+    "郵便番号": { "method": "redact", "token": "[郵便]" },
+    "生年月日": { "method": "generalize_date", "level": "year" },
+    "年齢": { "method": "generalize_age", "bucket": 10 },
+    "都道府県": { "method": "keep" },
+    "性別": { "method": "keep" },
+    "購入金額": { "method": "keep" },
+    "備考": { "method": "regex_scrub" }
+  },
+  "_notes": {
+    "default_action": "ポリシー未記載の列の扱い。review=触らず人手確認を促す / drop=削除 / redact=伏字。迷ったら drop が安全。",
+    "method_keep": "分析価値を保つため『あえて残す』と明示する列。過剰隠蔽でデータ価値を損なわないための宣言。",
+    "method_hash": "不可逆かつ同一値→同一ハッシュ。テーブル間の結合キーに使える。",
+    "method_partial": "電話・住所の先頭だけ残し地域性は保ちつつ個人特定を防ぐ用途。",
+    "quasi_identifiers": "単体では個人を特定しないが組合せで特定しうる列。k-匿名性チェックの対象。"
+  }
+}
